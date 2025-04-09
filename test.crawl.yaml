@@ -1,0 +1,26 @@
+workers: 4
+saveStateHistory: 2
+scopeType: page
+rolloverSize: 8000000000
+# pageLoadTimeout: 120
+
+warcinfo:
+  operator: '"Environmental Data & Governance Initiative" <contact@envirodatagov.org>'
+
+seeds:
+  - 'https://gis-fema.hub.arcgis.com/pages/geospatial-da-training'
+  - 'https://arcgis.netl.doe.gov/portal/apps/experiencebuilder/experience/?id=a2ce47d4721a477a8701bd0e08495e1d'
+  - 'https://www.epa.gov/environmental-economics/mortality-risk-valuation'
+  - 'https://www.niehs.nih.gov/about/boards/bsc/review'
+  - 'https://www.epa.gov/emergency-response/national-response-center'
+  - 'https://glorecords.pathfinder.blm.gov/'
+  - 'https://www.epa.gov/enforcement/enforcement-and-compliance-assurance-annual-results-fy-2024-protecting-health-and'
+  - 'https://www.fema.gov/emergency-managers/risk-management/hazard-mitigation-planning/risk-reduction-activities'
+  - 'https://www.epa.gov/enforcement/enforcement-and-compliance-assurance-annual-results-fy-2024-data-and-trends'
+  - 'https://www.grants.gov/'
+  - 'https://www.epa.gov/enforcement/enforcement-and-compliance-assurance-annual-results-fy-2024-maps'
+  - 'https://www.fisheries.noaa.gov/topic/laws-policies/endangered-species-act'
+  - 'https://www.epa.gov/enforcement/enforcement-and-compliance-assurance-annual-results-fy-2024-compliance-assurance'
+  - 'https://wwwn.cdc.gov/TSP/ToxGuides/ToxGuidesLanding.aspx'
+  - 'https://www.cbp.gov/trade/ace/Innovation'
+  - 'https://answers.usgs.gov/'
