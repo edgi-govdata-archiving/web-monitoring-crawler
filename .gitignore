@@ -39,6 +39,7 @@ coverage.xml
 cover/*
 
 # Runtime-generated files
+seeds
 crawls
 *.log
 

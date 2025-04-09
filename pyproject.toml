@@ -1,0 +1,24 @@
+[project]
+name = "edgi-wm-crawler"
+version = "0.1.0"
+description = "Tools for automated crawls of pages EDGI actively monitors."
+readme = "README.md"
+authors = [
+    { name = "Rob Brackett", email = "rob@robbrackett.com" },
+    { name = "Environmental Data Governance Initiative", email = "EnviroDGI@protonmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "internetarchive ~=5.3.1",
+    "web_monitoring @ git+https://github.com/edgi-govdata-archiving/web-monitoring-processing.git@main"
+]
+
+[project.scripts]
+edgi-wm-crawler = "edgi_wm_crawler:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true

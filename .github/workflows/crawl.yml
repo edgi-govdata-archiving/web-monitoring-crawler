@@ -1,10 +1,20 @@
 name: Crawl
 
 on:
-  workflow_dispatch: {}
   schedule:
     # 5:30pm Pacific on M/W/F
     - cron: '30 0 * * 2,4,6'
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: report planned work, but do not actually upload or change anything'
+        type: boolean
+        default: true
+      test_seeds:
+        description: 'Use test seeds'
+        type: boolean
+        default: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -12,68 +22,173 @@ concurrency:
 
 env:
   BROWSERTRIX_IMAGE: 'webrecorder/browsertrix-crawler:1.5.11'
+  COLLECTION_NAME_BASE: 'edgi-active-urls'
+  COLLECTION_TITLE_BASE: 'EDGI Web Monitoring Crawl'
 
 jobs:
-  crawl:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamper.outputs.timestamp }}
+      seed_files: ${{ steps.seeds.outputs.files }}
+      # configs: array? of crawl configs
+    steps:
+      - id: timestamper
+        run: |
+          timestamp="$(date +'%Y%m%d%H%M%S')"
+          echo "timestamp: '${timestamp}'"
+          echo "timestamp=${timestamp}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --all-extras
+
+      - name: Generate seed lists
+        id: seeds
+        env:
+          WEB_MONITORING_DB_EMAIL: '${{ secrets.WEB_MONITORING_DB_EMAIL }}'
+          WEB_MONITORING_DB_PASSWORD: '${{ secrets.WEB_MONITORING_DB_PASSWORD }}'
+        run: |
+          if [[ -n '${{ inputs.test_seeds && 'test' || '' }}' ]]; then
+            mkdir -p seeds
+            cp test.crawl.yaml seeds/test.seeds.yaml
+            echo '["test"]' > filenames.json
+          else
+            uv run edgi-wm-crawler multi-seeds \
+              --size 250 \
+              --single-group-size 1000 \
+              --workers 1 \
+              --output seeds \
+              > filenames.json
+          fi
+
+          echo "files=$(cat filenames.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload seed lists as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeds
+          path: seeds
+          retention-days: 7
+
+  crawl:
+    needs:
+      - setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        seed_name: ${{ fromJSON(needs.setup.outputs.seed_files) }}
+    env:
+      TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+      COLLECTION: 'edgi-${{ needs.setup.outputs.timestamp }}-${{ matrix.seed_name }}'
+      SAVE_RESULTS: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --all-extras
+
+      - name: Mount seed lists
+        uses: actions/download-artifact@v4
+        with:
+          name: seeds
+          path: seeds
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.CRAWLER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.CRAWLER_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Get Browsertrix-Crawler
         run: |
           docker pull '${{ env.BROWSERTRIX_IMAGE }}'
 
-      - id: setup-collection
-        run: |
-          timestamp="$(date +'%Y%m%d%H%M%S')"
-
-          collection="test-crawl-${timestamp}"
-          collection_path="./crawls/collections/${collection}"
-          echo "name=${collection}" >> "$GITHUB_OUTPUT"
-          echo "path=${collection_path}" >> "$GITHUB_OUTPUT"
-
-      - name: Get seeds
-        run: |
-          echo 'TODO: load seeds from DB instead of this test set'
-          state_path='${{ steps.setup-collection.outputs.path}}/crawls/'
-          mkdir -p "${state_path}"
-          cp test.crawl.yaml "${state_path}"
-
       - name: Crawl
+        id: crawl
         run: |
-          ./crawl.sh ./test.crawl.yaml '${{ steps.setup-collection.outputs.name }}'
+          mkdir -p crawls/collections
+          ./crawl.sh ./seeds/${{ matrix.seed_name }}.seeds.yaml "${COLLECTION}"
 
       - name: Upload to S3
+        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
         run: |
           aws s3 cp --recursive \
-            '${{ steps.setup-collection.outputs.path }}' \
-            's3://${{ secrets.CRAWLER_S3_BUCKET }}/${{ steps.setup-collection.outputs.name }}'
+            'crawls/collections/${{ env.COLLECTION }}' \
+            's3://${{ secrets.CRAWLER_S3_BUCKET }}/${{ env.COLLECTION }}'
 
       - name: Upload to workflow artifacts
+        # Still want to save artifacts if crawl fails (so we can investigate)
+        if: ${{ success() || steps.crawl.outcome == 'failure' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ steps.setup-collection.outputs.path }}'
+          name: 'crawl-${{ matrix.seed_name }}'
+          path: 'crawls/collections/${{ env.COLLECTION }}'
           retention-days: 7
 
-  import-db:
-    needs:
-      - crawl
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo 'TODO: import to DB'
+      - name: Import to web-monitoring-db
+        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        env:
+          WEB_MONITORING_DB_EMAIL: '${{ secrets.WEB_MONITORING_DB_EMAIL }}'
+          WEB_MONITORING_DB_PASSWORD: '${{ secrets.WEB_MONITORING_DB_PASSWORD }}'
+          WEB_MONITORING_DB_S3_BUCKET: '${{ secrets.WEB_MONITORING_DB_S3_BUCKET }}'
+          DRY_RUN_OPTION: ${{ env.SAVE_RESULTS == 'false' && '--dry-run' || '' }}
+        run: |
+          crawl_path="crawls/collections/${COLLECTION}"
+          uv run wm-warc-import \
+            --archive-s3 "${WEB_MONITORING_DB_S3_BUCKET}" \
+            --seeds "${crawl_path}/crawls/config.${COLLECTION}.yaml" \
+            ${{ env.DRY_RUN_OPTION }} \
+            ${crawl_path}/archive/*.warc.gz
 
-  upload-ia:
-    needs:
-      - crawl
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo 'TODO: upload to IA'
+      - name: Derive Internet Archive options
+        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        id: ia-options
+        run: |
+          iso_date="$(
+            echo "${TIMESTAMP}" \
+            | sed -E 's/^([0-9]{4})([0-9]{2})([0-9]{2}).*/\1-\2-\3/'
+          )"
+          title="EDGI Web Monitoring Crawl ${iso_date}"
+
+          echo "identifier=edgi-active-urls--${TIMESTAMP}" >> "$GITHUB_OUTPUT"
+          echo "iso_date=${iso_date}" >> "$GITHUB_OUTPUT"
+          echo "title=${title}" >> "$GITHUB_OUTPUT"
+
+      # The IA CLI does not currently support env vars (it used to), so manually
+      # write a config file.
+      # See: https://github.com/jjjake/internetarchive/issues/640
+      - name: Configure ia CLI
+        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        run: |
+          config_dir=~/.config/internetarchive
+          mkdir -p $config_dir
+          (
+            echo '[s3]'
+            echo 'access = ${{ secrets.IAS3_ACCESS_KEY }}'
+            echo 'secret = ${{ secrets.IAS3_SECRET_KEY }}'
+          ) > $config_dir/ia.ini
+
+      - name: Upload to Internet Archive
+        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        run: |
+          crawl_path="crawls/collections/${COLLECTION}"
+          uv run ia upload \
+            --metadata="mediatype:web" \
+            --metadata="title:${{ steps.ia-options.outputs.title }}" \
+            --metadata="date:${{ steps.ia-options.outputs.iso_date }}" \
+            '${{ steps.ia-options.outputs.identifier }}' \
+            ${crawl_path}/archive/* \
+            ${crawl_path}/logs/*

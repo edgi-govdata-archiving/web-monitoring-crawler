@@ -27,10 +27,15 @@ function pretty_format_crawl_log() {
 }
 
 function do_crawl() {
-    crawl_config="${1}"
+    input_config="${1}"
     collection="${2}"
     crawls_path="${PWD}/crawls"
     crawl_output="${crawls_path}/collections/${collection}"
+
+    state_path="${crawl_output}/crawls"
+    crawl_config="${state_path}/config.${collection}.yaml"
+    mkdir -p "${state_path}"
+    cp "${input_config}" "${crawl_config}"
 
     # TODO: should use `--restartsOnError` and check exit code and endlessly
     # restart instead of the current approach.
@@ -83,7 +88,7 @@ function do_crawl() {
         # https://crawler.docs.browsertrix.com/user-guide/exit-codes/
         interrupted="$(tail -n 3 "${logfile}" | grep -i 'crawl status: interrupted' || true)"
         if [[ -n "${interrupted}" ]]; then
-            last_state="$(ls -tr "${crawl_output}/crawls/" | tail -n 1)"
+            last_state="$(ls -tr "${state_path}" | tail -n 1)"
             crawl_config="${crawl_output}/crawls/${last_state}"
 
             echo "${collection} was interrupted!"
