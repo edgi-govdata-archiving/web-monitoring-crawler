@@ -31,7 +31,6 @@ jobs:
     outputs:
       timestamp: ${{ steps.timestamper.outputs.timestamp }}
       seed_files: ${{ steps.seeds.outputs.files }}
-      # configs: array? of crawl configs
     steps:
       - id: timestamper
         run: |
@@ -82,6 +81,9 @@ jobs:
       - setup
     runs-on: ubuntu-latest
     strategy:
+      # One crawl might go bad, but that should not break other crawls! This
+      # happens most with uploading to IA, not the actual crawling. ¯\_(ツ)_/¯
+      fail-fast: false
       matrix:
         seed_name: ${{ fromJSON(needs.setup.outputs.seed_files) }}
     env:
@@ -186,6 +188,7 @@ jobs:
         run: |
           crawl_path="crawls/collections/${COLLECTION}"
           uv run ia upload \
+            --retries 10 \
             --metadata="mediatype:web" \
             --metadata="title:${{ steps.ia-options.outputs.title }}" \
             --metadata="date:${{ steps.ia-options.outputs.iso_date }}" \
