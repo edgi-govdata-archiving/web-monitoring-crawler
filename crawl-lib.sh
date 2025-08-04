@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-BROWSERTRIX_IMAGE="${BROWSERTRIX_IMAGE:-webrecorder/browsertrix-crawler:1.6.4}"
+BROWSERTRIX_IMAGE="${BROWSERTRIX_IMAGE:-webrecorder/browsertrix-crawler:1.7.0}"
 
 # Any preliminary stuff we want to make sure is done before starting a crawl.
 function prepare() {
