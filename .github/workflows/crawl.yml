@@ -188,7 +188,7 @@ jobs:
         run: |
           crawl_path="crawls/collections/${COLLECTION}"
           uv run ia upload \
-            --retries 10 \
+            --retries 50 \
             --metadata="mediatype:web" \
             --metadata="title:${{ steps.ia-options.outputs.title }}" \
             --metadata="date:${{ steps.ia-options.outputs.iso_date }}" \
