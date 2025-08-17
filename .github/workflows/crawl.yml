@@ -26,7 +26,7 @@ env:
   COLLECTION_TITLE_BASE: 'EDGI Web Monitoring Crawl'
 
 jobs:
-  setup:
+  seeds:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.timestamper.outputs.timestamp }}
@@ -61,7 +61,7 @@ jobs:
           else
             uv run edgi-wm-crawler multi-seeds \
               --size 250 \
-              --single-group-size 1000 \
+              --single-group-size 500 \
               --workers 1 \
               --output seeds \
               > filenames.json
@@ -78,17 +78,17 @@ jobs:
 
   crawl:
     needs:
-      - setup
+      - seeds
     runs-on: ubuntu-latest
     strategy:
       # One crawl might go bad, but that should not break other crawls! This
       # happens most with uploading to IA, not the actual crawling. ¯\_(ツ)_/¯
       fail-fast: false
       matrix:
-        seed_name: ${{ fromJSON(needs.setup.outputs.seed_files) }}
+        seed_name: ${{ fromJSON(needs.seeds.outputs.seed_files) }}
     env:
-      TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
-      COLLECTION: 'edgi-${{ needs.setup.outputs.timestamp }}-${{ matrix.seed_name }}'
+      TIMESTAMP: ${{ needs.seeds.outputs.timestamp }}
+      COLLECTION: 'edgi-${{ needs.seeds.outputs.timestamp }}-${{ matrix.seed_name }}'
       SAVE_RESULTS: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
