@@ -7,9 +7,11 @@ authors = [
     { name = "Rob Brackett", email = "rob@robbrackett.com" },
     { name = "Environmental Data Governance Initiative", email = "EnviroDGI@protonmail.com" },
 ]
+# This should ideally match the webrecorder/browsertrix-crawler Docker image
+# so we can leverage the already-installed Python interpreter there.
 requires-python = ">=3.12"
 dependencies = [
-    "internetarchive ~=5.3.1",
+    "internetarchive ~=5.5.0",
     "web_monitoring @ git+https://github.com/edgi-govdata-archiving/web-monitoring-processing.git@main"
 ]
 
