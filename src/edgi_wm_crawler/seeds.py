@@ -1,8 +1,12 @@
 from collections import defaultdict
 from itertools import chain
+import requests
+from requests.adapters import HTTPAdapter
 import re
+import threading
 from typing import Any, Generator, Iterable, Literal
 from urllib.parse import urlparse
+from urllib3.util import Retry
 import yaml
 from web_monitoring.db import Client as DbClient
 
@@ -135,3 +139,36 @@ def interleave(*iterables):
                 yield next(iterator)
             except StopIteration:
                 iterators.remove(iterator)
+
+
+# Requests is not thread-safe, so store a separate session for each thread.
+thread_requests = threading.local()
+
+
+def check_connection_error(url: str) -> str | None:
+    """
+    Is it possible to connect to this server/hostname? Returns ``None`` for
+    successful connections, otherwise a string indicating the type of
+    connection failure.
+    """
+    if not hasattr(thread_requests, 'session'):
+        thread_requests.session = requests.Session()
+        # status=0 -> only retry network failures, not non-2xx HTTP statuses.
+        retries = Retry(total=2, status=0)
+        thread_requests.session.mount('https://', HTTPAdapter(max_retries=retries))
+        thread_requests.session.mount('http://', HTTPAdapter(max_retries=retries))
+
+    try:
+        thread_requests.session.head(url, timeout=(60, 10))
+    except requests.exceptions.ConnectionError as error:
+        message = str(error)
+        if 'NameResolutionError' in message:
+            return 'ERR_NAME_NOT_RESOLVED'
+        elif 'ConnectTimeoutError' in message:
+            return 'timeout'
+        else:
+            # Ignore other types of connection errors, e.g. SSL failures, which
+            # browsers (and our crawler) may handle less strictly.
+            return None
+    except Exception:
+        return None
