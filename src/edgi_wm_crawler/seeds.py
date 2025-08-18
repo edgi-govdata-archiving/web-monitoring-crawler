@@ -9,40 +9,29 @@ from web_monitoring.db import Client as DbClient
 
 # We track these, but they are known to be dead servers (so will produce
 # network-level errors). We'll keep an eye on them via separate means.
-DEAD_SERVER_URLS = [
-    'https://ejscorecard.geoplatform.gov/about/',
-    'https://ejscorecard.geoplatform.gov/contact/',
-    'https://ejscorecard.geoplatform.gov/en/scorecard/environmental-protection-agency/',
-    'https://ejscorecard.geoplatform.gov/scorecard/',
-    'https://energyjustice-schools.egs.anl.gov/',
-    'https://energyjustice.egs.anl.gov/',
-    'https://screeningtool.geoplatform.gov/en/',
-    'https://screeningtool.geoplatform.gov/en/about',
-    'https://screeningtool.geoplatform.gov/en/contact',
-    'https://screeningtool.geoplatform.gov/en/downloads',
-    'https://screeningtool.geoplatform.gov/en/frequently-asked-questions',
-    'https://screeningtool.geoplatform.gov/en/methodology',
-    'https://screeningtool.geoplatform.gov/en/previous-versions',
-    'https://screeningtool.geoplatform.gov/en/public-engagement',
-    'https://www.environmentaljustice.gov/',
-    'https://www.environmentaljustice.gov/actions/',
-    'https://www.environmentaljustice.gov/resources/',
-    'https://www.environmentaljustice.gov/stories/',
-    'https://www.environmentaljustice.gov/wh-office-ej/',
-    'https://ejscreen.epa.gov/mapper/',
-]
+IGNORE_HOSTS = (
+    'ejscorecard.geoplatform.gov',        # 4 URLs
+    'energyjustice-schools.egs.anl.gov',  # 1 URL
+    'energyjustice.egs.anl.gov',          # 1 URL
+    'screeningtool.geoplatform.gov',      # 8 URLs
+    'www.environmentaljustice.gov',       # 5 URLs
+    'ejscreen.epa.gov',                   # 1 URL
+    'www.globalchange.gov',
+    'atlas.globalchange.gov',
+    'health2016.globalchange.gov',
+    'nca2023.globalchange.gov',
+    'sealevel.globalchange.gov',
+)
 
-# These are known to return 404 status codes with empty bodies (and we expect
-# them to stay that way). This breaks Browsertrix right now:
-# https://github.com/webrecorder/browsertrix-crawler/issues/789
-UNCRAWLABLE_404_URLS = [
+IGNORE_URLS = (
+    # These are known to return 404 status codes with empty bodies (and we
+    # expect them to stay that way). This breaks Browsertrix right now:
+    # https://github.com/webrecorder/browsertrix-crawler/issues/789
     'https://www.whitehouse.gov/wp-content/uploads/2023/01/01-2023-Framework-for-Federal-Scientific-Integrity-Policy-and-Practice.pdf',
     'https://www.whitehouse.gov/wp-content/uploads/2023/03/FTAC_Report_03222023_508.pdf',
     'https://www.whitehouse.gov/wp-content/uploads/2023/09/National-Climate-Resilience-Framework-FINAL.pdf',
     'https://www.whitehouse.gov/wp-content/uploads/2023/06/OSTP-SCIENTIFIC-INTEGRITY-POLICY.pdf',
-]
-
-IGNORE_URLS = frozenset([*DEAD_SERVER_URLS, *UNCRAWLABLE_404_URLS])
+)
 
 
 def active_urls(pattern: str | None = None) -> Generator[str, None, None]:
@@ -55,7 +44,10 @@ def active_urls(pattern: str | None = None) -> Generator[str, None, None]:
     urls = (
         page['url']
         for page in DbClient.from_env().get_pages(active=True, url=pattern)
-        if page['url'] not in IGNORE_URLS
+        if (
+            page['url'] not in IGNORE_URLS
+            and urlparse(page['url']).hostname not in IGNORE_HOSTS
+        )
     )
     if antipattern:
         urls = (
