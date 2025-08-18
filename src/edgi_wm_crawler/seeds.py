@@ -21,6 +21,7 @@ IGNORE_HOSTS = (
     'health2016.globalchange.gov',
     'nca2023.globalchange.gov',
     'sealevel.globalchange.gov',
+    'liftoff.energy.gov',
 )
 
 IGNORE_URLS = (
