@@ -61,7 +61,7 @@ jobs:
           else
             uv run edgi-wm-crawler multi-seeds \
               --size 250 \
-              --single-group-size 500 \
+              --single-group-size 1000 \
               --workers 1 \
               --output seeds \
               > filenames.json
