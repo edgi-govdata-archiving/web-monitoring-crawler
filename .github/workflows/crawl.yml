@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BROWSERTRIX_IMAGE: 'webrecorder/browsertrix-crawler:1.7.0'
+  BROWSERTRIX_IMAGE: 'webrecorder/browsertrix-crawler:1.7.1'
   COLLECTION_NAME_BASE: 'edgi-active-urls'
   COLLECTION_TITLE_BASE: 'EDGI Web Monitoring Crawl'
 
