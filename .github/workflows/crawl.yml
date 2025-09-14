@@ -64,6 +64,7 @@ jobs:
               --single-group-size 1000 \
               --workers 1 \
               --output seeds \
+              --precheck-connections \
               > filenames.json
           fi
 
