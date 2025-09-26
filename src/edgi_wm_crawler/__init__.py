@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from sys import exit, stderr
 from typing import Iterable
+from web_monitoring.db import Client as DbClient
 from .seeds import (
     active_urls,
     check_connection_error,
@@ -12,6 +13,8 @@ from .seeds import (
     format_browsertrix,
     group_urls,
 )
+
+PRECHECK_FILE_NAME = 'precheck.log.json'
 
 
 def main() -> None:
@@ -105,6 +108,14 @@ def main() -> None:
     )
     multi_seeds_command.set_defaults(func=generate_multi_seeds)
 
+    import_precheck_command = subparsers.add_parser('import-precheck', help='Import precheck results to web-montioring-db')
+    import_precheck_command.add_argument(
+        'seeds_dir',
+        type=Path,
+        help='Path to seeds output directory.'
+    )
+    import_precheck_command.set_defaults(func=import_precheck)
+
     args = parser.parse_args()
     args.func(**vars(args))
 
@@ -172,6 +183,37 @@ def generate_multi_seeds(*, pattern, workers: int, output: Path, size: int, sing
     print(json.dumps([f.split('.seeds')[0] for f in files]))
 
 
+def import_precheck(*, seeds_dir: Path, **_kwargs) -> None:
+    hosts = {}
+    precheck_path = seeds_dir / PRECHECK_FILE_NAME
+    with precheck_path.open('r') as precheck_file:
+        hosts = json.load(precheck_file)
+
+    error_records = []
+    for info in hosts.values():
+        for url in info.get('urls', []):
+            error_records.append({
+                'url': url,
+                'capture_time': info['timestamp'],
+                'network_error': info['error'],
+                'source_type': 'edgi_crawl',
+                'source_metadata': {},
+            })
+
+    print(f'Importing {len(error_records)} recordings of network errors...')
+    client = DbClient.from_env()
+    import_ids = client.add_versions(error_records)
+    errors = client.monitor_import_statuses(import_ids)
+    total = sum(len(job_errors) for job_errors in errors.values())
+    if total > 0:
+        print('Import job errors:')
+        for job_id, job_errors in errors.items():
+            print(f'  {job_id}: {len(job_errors):>3} errors {job_errors}')
+        print(f'  Total: {total:>3} errors')
+    else:
+        print(f'{len(import_ids)} import jobs completed successfully.')
+
+
 def filter_unreachable_hosts(urls: Iterable[str], output_dir: Path | None = None) -> list[str]:
     host_groups = group_urls(urls, by='host')
 
@@ -200,7 +242,7 @@ def filter_unreachable_hosts(urls: Iterable[str], output_dir: Path | None = None
                 urls.extend(host_groups[host])
 
     if output_dir:
-        log_path = output_dir / 'precheck.log.json'
+        log_path = output_dir / PRECHECK_FILE_NAME
         with log_path.open('w') as log_file:
             json.dump(log_data, log_file)
 

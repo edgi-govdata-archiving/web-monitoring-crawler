@@ -28,9 +28,12 @@ env:
 jobs:
   seeds:
     runs-on: ubuntu-latest
+    env:
+      SAVE_RESULTS: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && 'true' || 'false' }}
     outputs:
       timestamp: ${{ steps.timestamper.outputs.timestamp }}
       seed_files: ${{ steps.seeds.outputs.files }}
+      save_results: ${{ env.SAVE_RESULTS }}
     steps:
       - id: timestamper
         run: |
@@ -77,6 +80,14 @@ jobs:
           path: seeds
           retention-days: 7
 
+      - name: 'Import precheck errors to web-monitoring-db'
+        if: ${{ env.SAVE_RESULTS == 'true' }}
+        env:
+          WEB_MONITORING_DB_EMAIL: '${{ secrets.WEB_MONITORING_DB_EMAIL }}'
+          WEB_MONITORING_DB_PASSWORD: '${{ secrets.WEB_MONITORING_DB_PASSWORD }}'
+        run: |
+          uv run edgi-wm-crawler import-precheck seeds
+
   crawl:
     needs:
       - seeds
@@ -90,7 +101,7 @@ jobs:
     env:
       TIMESTAMP: ${{ needs.seeds.outputs.timestamp }}
       COLLECTION: 'edgi-${{ needs.seeds.outputs.timestamp }}-${{ matrix.seed_name }}'
-      SAVE_RESULTS: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && 'true' || 'false' }}
+      SAVE_RESULTS: ${{ needs.seeds.outputs.save_results }}
     steps:
       - uses: actions/checkout@v5
 
