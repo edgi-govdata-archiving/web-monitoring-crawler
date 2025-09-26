@@ -11,21 +11,26 @@ import yaml
 from web_monitoring.db import Client as DbClient
 
 
-# We track these, but they are known to be dead servers (so will produce
-# network-level errors). We'll keep an eye on them via separate means.
 IGNORE_HOSTS = (
-    'ejscorecard.geoplatform.gov',        # 4 URLs
-    'energyjustice-schools.egs.anl.gov',  # 1 URL
-    'energyjustice.egs.anl.gov',          # 1 URL
-    'screeningtool.geoplatform.gov',      # 8 URLs
-    'www.environmentaljustice.gov',       # 5 URLs
-    'ejscreen.epa.gov',                   # 1 URL
-    'www.globalchange.gov',
-    'atlas.globalchange.gov',
-    'health2016.globalchange.gov',
-    'nca2023.globalchange.gov',
-    'sealevel.globalchange.gov',
-    'liftoff.energy.gov',
+    # TODO: remove these entirely. These are all servers that are known to be
+    # dead and that could cause crawl problems, but we now run prechecks that
+    # largely resolve those issues and help us actually record that the server
+    # is down, which is important (we also want to know if/when it comes back!).
+    # Commenting these out for now in case we hit problems, but I intend to
+    # remove them entirely in a week or so if nothing goes horribly awry.
+    #
+    # 'ejscorecard.geoplatform.gov',        # 4 URLs
+    # 'energyjustice-schools.egs.anl.gov',  # 1 URL
+    # 'energyjustice.egs.anl.gov',          # 1 URL
+    # 'screeningtool.geoplatform.gov',      # 8 URLs
+    # 'www.environmentaljustice.gov',       # 5 URLs
+    # 'ejscreen.epa.gov',                   # 1 URL
+    # 'www.globalchange.gov',
+    # 'atlas.globalchange.gov',
+    # 'health2016.globalchange.gov',
+    # 'nca2023.globalchange.gov',
+    # 'sealevel.globalchange.gov',
+    # 'liftoff.energy.gov',
 )
 
 IGNORE_URLS = (
