@@ -171,6 +171,8 @@ def check_connection_error(url: str) -> str | None:
             return 'ERR_NAME_NOT_RESOLVED'
         elif 'ConnectTimeoutError' in message:
             return 'timeout'
+        elif 'RemoteDisconnected' in message:
+            return 'ERR_CONNECTION_RESET'
         else:
             # Ignore other types of connection errors, e.g. SSL failures, which
             # browsers (and our crawler) may handle less strictly.
