@@ -15,6 +15,10 @@ on:
         description: 'Use test seeds'
         type: boolean
         default: true
+      url_pattern:
+        description: 'URL pattern to crawl (if not using test seeds)'
+        type: string
+        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -63,6 +67,7 @@ jobs:
             echo '["test"]' > filenames.json
           else
             uv run edgi-wm-crawler multi-seeds \
+              --pattern '${{ inputs.url_pattern || '' }}' \
               --size 250 \
               --single-group-size 1000 \
               --workers 1 \
