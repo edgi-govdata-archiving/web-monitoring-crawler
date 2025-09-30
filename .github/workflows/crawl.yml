@@ -67,7 +67,7 @@ jobs:
             echo '["test"]' > filenames.json
           else
             uv run edgi-wm-crawler multi-seeds \
-              --pattern '${{ inputs.url_pattern || '' }}' \
+              --pattern '${{ inputs.url_pattern || '*' }}' \
               --size 250 \
               --single-group-size 1000 \
               --workers 1 \
