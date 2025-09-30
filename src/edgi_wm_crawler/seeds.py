@@ -159,12 +159,21 @@ def check_connection_error(url: str) -> str | None:
     if not hasattr(thread_requests, 'session'):
         thread_requests.session = requests.Session()
         # status=0 -> only retry network failures, not non-2xx HTTP statuses.
-        retries = Retry(total=2, status=0)
+        retries = Retry(total=2, status=0, backoff_factor=2)
         thread_requests.session.mount('https://', HTTPAdapter(max_retries=retries))
         thread_requests.session.mount('http://', HTTPAdapter(max_retries=retries))
 
+    # NOTE: we currently use a GET request here because some servers respond
+    # to HEAD requests negatively(!) (really interestingly, `www.ncei.noaa.gov`
+    # will respond to a HEAD request from cURL but not other tools (seems to be
+    # based on the `User-Agent` header). Anyway, the simplest fix is to do a
+    # full GET, although that's not fun if the response happens to be large!
+    # It might be nicer to start with HEAD and fall back to GET on connection
+    # resets and timeouts.
+    response = None
     try:
-        thread_requests.session.head(url, timeout=(60, 10))
+        response = thread_requests.session.get(url, timeout=(60, 10))
+        response.content
     except requests.exceptions.ConnectionError as error:
         message = str(error)
         if 'NameResolutionError' in message:
@@ -179,3 +188,6 @@ def check_connection_error(url: str) -> str | None:
             return None
     except Exception:
         return None
+    finally:
+        if response:
+            response.close()
