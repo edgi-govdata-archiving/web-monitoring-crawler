@@ -1,0 +1,58 @@
+name: Re-import to WB DB
+
+on:
+  workflow_dispatch:
+    inputs:
+      timestamp:
+        description: 'The timestamp of the original crawl as a 14-digit YYYYmmddHHMMSS number. Crawl data is usually named "edgi-<timestamp>-<seed_group>".'
+        type: string
+        required: true
+      seed_group:
+        description: 'Name of the seed group whose data to upload. Crawl data is usually named "edgi-<timestamp>-<seed_group>".'
+        type: string
+        required: true
+
+jobs:
+  reupload:
+    runs-on: ubuntu-latest
+    env:
+      TIMESTAMP: ${{ inputs.timestamp }}
+      COLLECTION: 'edgi-${{ inputs.timestamp }}-${{ inputs.seed_group }}'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --all-extras
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.CRAWLER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CRAWLER_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Download from S3
+        run: |
+          mkdir -p ./crawls/collections
+          aws s3 cp --recursive \
+            's3://${{ secrets.CRAWLER_S3_BUCKET }}/${{ env.COLLECTION }}' \
+            'crawls/collections/${{ env.COLLECTION }}'
+
+      - name: Import to web-monitoring-db
+        env:
+          WEB_MONITORING_DB_EMAIL: '${{ secrets.WEB_MONITORING_DB_EMAIL }}'
+          WEB_MONITORING_DB_PASSWORD: '${{ secrets.WEB_MONITORING_DB_PASSWORD }}'
+          WEB_MONITORING_DB_S3_BUCKET: '${{ secrets.WEB_MONITORING_DB_S3_BUCKET }}'
+          DRY_RUN_OPTION: ''
+        run: |
+          crawl_path="crawls/collections/${COLLECTION}"
+          uv run wm-warc-import \
+            --archive-s3 "${WEB_MONITORING_DB_S3_BUCKET}" \
+            --seeds "${crawl_path}/crawls/config.${COLLECTION}.yaml" \
+            ${{ env.DRY_RUN_OPTION }} \
+            ${crawl_path}/archive/*.warc.gz
