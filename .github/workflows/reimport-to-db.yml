@@ -1,4 +1,4 @@
-name: Re-import to WB DB
+name: Re-import to WM DB
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         required: true
 
 jobs:
-  reupload:
+  reimport:
     runs-on: ubuntu-latest
     env:
       TIMESTAMP: ${{ inputs.timestamp }}
