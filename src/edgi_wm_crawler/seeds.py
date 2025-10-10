@@ -5,7 +5,7 @@ from requests.adapters import HTTPAdapter
 import re
 import threading
 from typing import Any, Generator, Iterable, Literal
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 from urllib3.util import Retry
 import yaml
 from web_monitoring.db import Client as DbClient
@@ -56,7 +56,7 @@ def active_urls(pattern: str | None = None) -> Generator[str, None, None]:
         for page in DbClient.from_env().get_pages(active=True, url=pattern)
         if (
             page['url'] not in IGNORE_URLS
-            and urlparse(page['url']).hostname not in IGNORE_HOSTS
+            and urlsplit(page['url']).hostname not in IGNORE_HOSTS
         )
     )
     if antipattern:
@@ -119,7 +119,7 @@ def group_urls(
 ) -> dict[str, list[str]]:
     url_groups: dict[str, list[str]] = defaultdict(list)
     for url in urls:
-        parsed = urlparse(url)
+        parsed = urlsplit(url)
         assert parsed.hostname, f'No hostname: "{url}"'
 
         if by == 'host':
