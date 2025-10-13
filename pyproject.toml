@@ -11,7 +11,7 @@ authors = [
 # so we can leverage the already-installed Python interpreter there.
 requires-python = ">=3.12"
 dependencies = [
-    "internetarchive ~=5.5.0",
+    "internetarchive ~=5.6.0",
     "web_monitoring @ git+https://github.com/edgi-govdata-archiving/web-monitoring-processing.git@main"
 ]
 
