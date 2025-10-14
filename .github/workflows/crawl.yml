@@ -186,22 +186,11 @@ jobs:
           echo "iso_date=${iso_date}" >> "$GITHUB_OUTPUT"
           echo "title=${title}" >> "$GITHUB_OUTPUT"
 
-      # The IA CLI does not currently support env vars (it used to), so manually
-      # write a config file.
-      # See: https://github.com/jjjake/internetarchive/issues/640
-      - name: Configure ia CLI
-        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
-        run: |
-          config_dir=~/.config/internetarchive
-          mkdir -p $config_dir
-          (
-            echo '[s3]'
-            echo 'access = ${{ secrets.IAS3_ACCESS_KEY }}'
-            echo 'secret = ${{ secrets.IAS3_SECRET_KEY }}'
-          ) > $config_dir/ia.ini
-
       - name: Upload to Internet Archive
         if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        env:
+          IA_ACCESS_KEY_ID: '${{ secrets.IAS3_ACCESS_KEY }}'
+          IA_SECRET_ACCESS_KEY: '${{ secrets.IAS3_SECRET_KEY }}'
         run: |
           crawl_path="crawls/collections/${COLLECTION}"
           uv run ia upload \

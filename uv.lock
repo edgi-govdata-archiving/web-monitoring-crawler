@@ -240,7 +240,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "internetarchive", specifier = "~=5.5.0" },
+    { name = "internetarchive", specifier = "~=5.6.0" },
     { name = "web-monitoring", git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main" },
 ]
 
@@ -255,7 +255,7 @@ wheels = [
 
 [[package]]
 name = "internetarchive"
-version = "5.5.1"
+version = "5.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonpatch" },
@@ -263,9 +263,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/b6/f5843e65fe1d30871931d26b10f1e4f28b597f9e1a4b7cda221a1bd638ea/internetarchive-5.5.1.tar.gz", hash = "sha256:e49b1681222ca9b4ff6db333b79c60ac3a1f16f0a87216431b4208adac8e5aaa", size = 116132, upload-time = "2025-09-05T18:32:10.808Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/ff/e152fcec2ebd19294f719a91a6ef1188734708d678991d51ffb51e81eb33/internetarchive-5.6.0.tar.gz", hash = "sha256:b7e47f8a6739fa747c7894dd623392c2b8dd3302a9f686991c331688f065d86a", size = 120155, upload-time = "2025-10-10T17:46:10.978Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/e3/ed869c34e3b6b7098ec5dd66d0c1d19e5922e7c18da40b16e12848570a78/internetarchive-5.5.1-py3-none-any.whl", hash = "sha256:0564a82206ad8df78d00b30aa1477d5214c411e89280099cc6b24240fbe06894", size = 107953, upload-time = "2025-09-05T18:32:09.527Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/c7/6c595ea555c9064440f479d0d4362a7d113d2a6fce0f64c0153b01c810aa/internetarchive-5.6.0-py3-none-any.whl", hash = "sha256:42b41fb627e8fc5cd8295c6c79839584bf9a45e0df1eebdf10c703c61540aeb5", size = 110329, upload-time = "2025-10-10T17:46:09.727Z" },
 ]
 
 [[package]]
