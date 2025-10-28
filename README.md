@@ -24,7 +24,7 @@ The scheduled crawls here currently run on GitHub Actions: it is free, convenien
     1. Saves the results as a GH actions artifact (even if the crawl fails, so it can be inspected).
     2. Uploads results to S3.
     3. Imports the results to web-monitoring-db.
-    4. Uploads the WARC files to the Internet Achive.
+    4. Uploads the WARC files to the Internet Archive.
 
     Ideally these follow-on bits would be separate jobs, but I don’t think there’s a way to do that in the current workflow syntax.
 
