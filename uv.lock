@@ -255,7 +255,7 @@ wheels = [
 
 [[package]]
 name = "internetarchive"
-version = "5.7.0"
+version = "5.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonpatch" },
@@ -263,9 +263,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/55/e4/d60e8590fa1ad242b90381e9b3c5654e0a37c5968b380ba1409d07ac94ec/internetarchive-5.7.0.tar.gz", hash = "sha256:252332d838556a156131f8102e02e07f60424da489cc5f0e97c987f0a038a412", size = 123271, upload-time = "2025-10-16T18:03:28.762Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/30/e1195b511ce0a3c027c785790140c815c9fde73806470ac8774610c19346/internetarchive-5.7.1.tar.gz", hash = "sha256:f35e545c4925e1fc5f37bd83e59b8b72f79645129d0a32772a6d25fb5252d92a", size = 123414, upload-time = "2025-10-29T16:46:35.191Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/6a/6f8fa013d18a1d5ce28f0e8a4b8d509e4aa1e741da04e0ba07d0d5b779b5/internetarchive-5.7.0-py3-none-any.whl", hash = "sha256:1a4de65ceada60e4a86a26ce8dff150995d70e2e19f5e9ad9fed55654c298811", size = 111591, upload-time = "2025-10-16T18:03:27.427Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/e4/d027a03621b8091067cf4cf80aec4d71cadcd39b76a6558e430ceeca529e/internetarchive-5.7.1-py3-none-any.whl", hash = "sha256:fcfcb729f4d7ffdad42aaed22247ac42e21fe2d99c122646870844cbbd981559", size = 111623, upload-time = "2025-10-29T16:46:33.605Z" },
 ]
 
 [[package]]
