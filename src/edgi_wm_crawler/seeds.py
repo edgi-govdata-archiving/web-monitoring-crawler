@@ -104,6 +104,16 @@ def format_browsertrix(urls: Iterable[str], *, workers: int = 4, **options: Any)
         'rolloverSize': 8_000_000_000,
         # Default timeout is 90, bump it up for some sites that seem to have long CloudFront timeouts.
         'pageLoadTimeout': 120,
+        # FIXME: decide whether to keep skipping autoscroll. In v1.8.1, autoscroll was buggy, and didn't
+        # work on some big pages, making them finish artifically fast. In v1.9.0, it works, but on those
+        # big pages slows things down to a problematic degree.
+        # Use default behaviors *except* autoscroll.
+        'behaviors': [
+            # 'autoscroll',
+            'autoplay',
+            'autofetch',
+            'siteSpecific',
+        ],
         **options,
         'warcinfo': {
             'operator': '"Environmental Data & Governance Initiative" <contact@envirodatagov.org>',
