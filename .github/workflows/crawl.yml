@@ -45,7 +45,7 @@ jobs:
           echo "timestamp: '${timestamp}'"
           echo "timestamp=${timestamp}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -108,7 +108,7 @@ jobs:
       COLLECTION: 'edgi-${{ needs.seeds.outputs.timestamp }}-${{ matrix.seed_name }}'
       SAVE_RESULTS: ${{ needs.seeds.outputs.save_results }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
