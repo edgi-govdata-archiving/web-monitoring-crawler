@@ -79,7 +79,7 @@ jobs:
           echo "files=$(cat filenames.json)" >> $GITHUB_OUTPUT
 
       - name: Upload seed lists as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: seeds
           path: seeds
@@ -151,7 +151,7 @@ jobs:
       - name: Upload to workflow artifacts
         # Still want to save artifacts if crawl fails (so we can investigate)
         if: ${{ success() || steps.crawl.outcome == 'failure' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: 'crawl-${{ matrix.seed_name }}'
           path: 'crawls/collections/${{ env.COLLECTION }}'
