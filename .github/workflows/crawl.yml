@@ -25,7 +25,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BROWSERTRIX_IMAGE: 'webrecorder/browsertrix-crawler:1.11.1'
+  BROWSERTRIX_IMAGE: 'envirodgi/browsertrix:dev'
   COLLECTION_NAME_BASE: 'edgi-active-urls'
   COLLECTION_TITLE_BASE: 'EDGI Web Monitoring Crawl'
 
@@ -131,15 +131,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.CRAWLER_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Get Browsertrix-Crawler
+      - name: Build Browsertrix-Crawler
         run: |
-          docker pull '${{ env.BROWSERTRIX_IMAGE }}'
+          docker buildx build \
+            --file ./Dockerfile.browsertrix \
+            --tag '${{ env.BROWSERTRIX_IMAGE }}' \
+            .
 
       - name: Crawl
         id: crawl
         run: |
           mkdir -p crawls/collections
-          ./crawl.sh ./seeds/${{ matrix.seed_name }}.seeds.yaml "${COLLECTION}"
+          ./crawl.sh \
+            ./seeds/${{ matrix.seed_name }}.seeds.yaml \
+            "${COLLECTION}"
 
       - name: Upload to S3
         if: ${{ success() && env.SAVE_RESULTS == 'true' }}
