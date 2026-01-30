@@ -146,6 +146,15 @@ jobs:
             ./seeds/${{ matrix.seed_name }}.seeds.yaml \
             "${COLLECTION}"
 
+          # The browser's working profile dir is stored in the collection, but
+          # it's big (has a cache of most of what we visited) and ephemeral.
+          # Delete it so we don't wind up saving in artifacts, S3, etc.
+          rm -rf "crawls/collections/${COLLECTION}/profile"
+          # Same for downloads. Also, if we've loaded a pre-built profile, a
+          # pointless copy of it will be in the downloads dir (it places it
+          # here when loading).
+          rm -rf "crawls/collections/${COLLECTION}/downloads"
+
       - name: Upload to S3
         if: ${{ success() && env.SAVE_RESULTS == 'true' }}
         run: |
