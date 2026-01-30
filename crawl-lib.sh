@@ -37,12 +37,6 @@ function do_crawl() {
     mkdir -p "${state_path}"
     cp "${input_config}" "${crawl_config}"
 
-    profile_path="crawls/cache/profile.tar.gz"
-    profile_option="--saveProfile /${profile_path}"
-    if [[ -f "./${profile_path}" ]]; then
-        profile_option="--profile /${profile_path} --saveProfile"
-    fi
-
     # TODO: should use `--restartsOnError` and check exit code and endlessly
     # restart instead of the current approach.
     for i in {1..10}; do
@@ -78,7 +72,6 @@ function do_crawl() {
             --config /app/config.yaml \
             --collection "${collection}" \
             --saveState always \
-            $profile_option \
             | grep --line-buffered -E 'crawlStatus|"logLevel":\s?"error"' \
             | pretty_format_crawl_log \
             || true
