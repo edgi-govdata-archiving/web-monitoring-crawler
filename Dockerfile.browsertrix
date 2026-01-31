@@ -1,6 +1,6 @@
 # This image is used to patch Browsertrix's official image and solve some minor
 # issues without waiting for a new release.
-FROM webrecorder/browsertrix-crawler:1.11.1
+FROM webrecorder/browsertrix-crawler:1.11.2
 
 WORKDIR /app
 # See: https://github.com/webrecorder/browsertrix-crawler/pull/953
