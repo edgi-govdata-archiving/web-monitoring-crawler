@@ -28,6 +28,7 @@ env:
   BROWSERTRIX_IMAGE: 'envirodgi/browsertrix:dev'
   COLLECTION_NAME_BASE: 'edgi-active-urls'
   COLLECTION_TITLE_BASE: 'EDGI Web Monitoring Crawl'
+  IA_COLLECTION: 'edgi-web-monitoring-crawls'
 
 jobs:
   seeds:
@@ -207,6 +208,12 @@ jobs:
           IA_SECRET_ACCESS_KEY: '${{ secrets.IAS3_SECRET_KEY }}'
         run: |
           crawl_path="crawls/collections/${COLLECTION}"
+
+          collection_metadata=''
+          if [ -n '${{ env.IA_COLLECTION }}' ]; then
+            collection_metadata='--metadata="collection:${{ env.IA_COLLECTION }}"'
+          fi
+
           uv run ia upload \
             --checksum \
             --verify \
@@ -215,6 +222,7 @@ jobs:
             --metadata="mediatype:web" \
             --metadata="title:${{ steps.ia-options.outputs.title }}" \
             --metadata="date:${{ steps.ia-options.outputs.iso_date }}" \
+            ${collection_metadata} \
             '${{ steps.ia-options.outputs.identifier }}' \
             ${crawl_path}/archive/* \
             ${crawl_path}/logs/*
