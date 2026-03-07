@@ -222,6 +222,14 @@ jobs:
             --metadata="mediatype:web" \
             --metadata="title:${{ steps.ia-options.outputs.title }}" \
             --metadata="date:${{ steps.ia-options.outputs.iso_date }}" \
+            --metadata="subject:crawldata" \
+            --metadata="subject:edgi" \
+            --metadata="subject:usa" \
+            --metadata="subject:government" \
+            --metadata="subject:policy" \
+            --metadata="subject:science" \
+            --metadata="subject:environment" \
+            --metadata="subject:climate" \
             ${collection_metadata} \
             '${{ steps.ia-options.outputs.identifier }}' \
             ${crawl_path}/archive/* \
