@@ -211,7 +211,7 @@ jobs:
 
           collection_metadata=''
           if [ -n '${{ env.IA_COLLECTION }}' ]; then
-            collection_metadata='--metadata="collection:${{ env.IA_COLLECTION }}"'
+            collection_metadata="--metadata='collection:${{ env.IA_COLLECTION }}'"
           fi
 
           uv run ia upload \
