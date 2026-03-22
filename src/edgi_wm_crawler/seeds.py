@@ -44,7 +44,7 @@ IGNORE_URLS = (
 )
 
 
-def active_urls(pattern: str | None = None) -> Generator[str, None, None]:
+def active_urls(pattern: str | None = None, tags: list[str] | None = None) -> Generator[str, None, None]:
     # TODO: pattern negation support should be built into the API.
     antipattern = None
     if pattern and pattern.startswith('!'):
@@ -53,7 +53,11 @@ def active_urls(pattern: str | None = None) -> Generator[str, None, None]:
 
     urls = (
         page['url']
-        for page in DbClient.from_env().get_pages(active=True, url=pattern)
+        for page in DbClient.from_env().get_pages(
+            active=True,
+            url=pattern,
+            tags=tags,
+        )
         if (
             page['url'] not in IGNORE_URLS
             and urlsplit(page['url']).hostname not in IGNORE_HOSTS
