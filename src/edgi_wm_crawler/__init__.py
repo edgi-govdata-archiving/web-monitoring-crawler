@@ -35,6 +35,11 @@ def main() -> None:
         help='Only list URLs matching this pattern.'
     )
     seeds_command.add_argument(
+        '--tag',
+        action='append',
+        help='Only list URLs with this tag (repeat for multiple tags).'
+    )
+    seeds_command.add_argument(
         '--workers',
         type=int,
         default=4,
@@ -70,6 +75,11 @@ def main() -> None:
     multi_seeds_command.add_argument(
         '--pattern',
         help='Only list URLs matching this pattern.'
+    )
+    multi_seeds_command.add_argument(
+        '--tag',
+        action='append',
+        help='Only list URLs with this tag (repeat for multiple tags).'
     )
     multi_seeds_command.add_argument(
         '--workers',
@@ -120,9 +130,9 @@ def main() -> None:
     args.func(**vars(args))
 
 
-def generate_seeds(*, format, pattern, workers, precheck_connections, **_kwargs) -> None:
+def generate_seeds(*, format, pattern, tag: list[str] | None, workers, precheck_connections, **_kwargs) -> None:
     print(f'Generating seeds as {format}...', file=stderr)
-    urls = active_urls(pattern=pattern)
+    urls = active_urls(pattern=pattern, tags=tag)
     if precheck_connections:
         urls = filter_unreachable_hosts(urls)
     if format == 'text':
@@ -134,7 +144,7 @@ def generate_seeds(*, format, pattern, workers, precheck_connections, **_kwargs)
         exit(1)
 
 
-def generate_multi_seeds(*, pattern, workers: int, output: Path, size: int, single_group_size: int = 0, precheck_connections: bool, **_kwargs) -> None:
+def generate_multi_seeds(*, pattern, tag: list[str] | None, workers: int, output: Path, size: int, single_group_size: int = 0, precheck_connections: bool, **_kwargs) -> None:
     single_group_size = single_group_size or size
 
     print(f'Writing seed files to "{output}/*"...', file=stderr)
@@ -143,7 +153,7 @@ def generate_multi_seeds(*, pattern, workers: int, output: Path, size: int, sing
 
     files = []
 
-    urls = active_urls(pattern=pattern)
+    urls = active_urls(pattern=pattern, tags=tag)
     if precheck_connections:
         urls = filter_unreachable_hosts(urls, output_dir=output)
     core_groups = group_urls(urls, by='domain')
