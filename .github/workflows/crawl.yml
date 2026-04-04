@@ -4,7 +4,7 @@ on:
   schedule:
     # 5:30pm Pacific on M/W/F
     # Meant to be after the end of the business day in continental USA.
-    - cron: '30 17 * * 2,4,6'
+    - cron: '30 17 * * 1,3,5'
       timezone: 'America/Los_Angeles'
 
   workflow_dispatch:
