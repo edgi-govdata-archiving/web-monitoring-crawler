@@ -3,7 +3,9 @@ name: Crawl
 on:
   schedule:
     # 5:30pm Pacific on M/W/F
-    - cron: '30 0 * * 2,4,6'
+    # Meant to be after the end of the business day in continental USA.
+    - cron: '30 17 * * 2,4,6'
+      timezone: 'America/Los_Angeles'
 
   workflow_dispatch:
     inputs:
