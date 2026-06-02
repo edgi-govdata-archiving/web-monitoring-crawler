@@ -3,10 +3,9 @@
 FROM webrecorder/browsertrix-crawler:1.12.4
 
 WORKDIR /app
-# See: https://github.com/webrecorder/browsertrix-crawler/pull/953
-RUN yarn upgrade warcio
-# Upgrade normalize-url to get some bugfixes. Hopefully soon to be upstreamed:
-# https://github.com/webrecorder/browsertrix-crawler/pull/984
-RUN yarn upgrade 'normalize-url@^=9.0.0'
+
+# Adjust any dependencies or modules in Browsertrix here in order to work
+# around bugs or issues. For example:
+# RUN yarn upgrade warcio
 
 WORKDIR /crawls
