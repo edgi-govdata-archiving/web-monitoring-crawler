@@ -1025,9 +1025,10 @@ wheels = [
 
 [[package]]
 name = "web-monitoring"
-version = "0.1.dev1189+g1cf83b6ee"
-source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#1cf83b6ee10fff100706bb64d2fc4ad7584e140f" }
+version = "0.1.dev1196+gccd1a157f"
+source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#ccd1a157f96450b01e21600700711034c31edc27" }
 dependencies = [
+    { name = "aiohttp" },
     { name = "brotli" },
     { name = "charset-normalizer" },
     { name = "cloudpathlib", extra = ["s3"] },
