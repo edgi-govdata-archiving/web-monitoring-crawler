@@ -1012,23 +1012,22 @@ all = [
 
 [[package]]
 name = "wayback"
-version = "0.4.5"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/2c/50cf23834aea1de728967a535ce94f65b432ba95b36110aee3b1dd3204f2/wayback-0.4.5.tar.gz", hash = "sha256:8f260a38ad8e317d9089fde86049151705a1bb4674e85b3da3a9f0204c5d4f55", size = 72216, upload-time = "2024-02-01T19:17:07.803Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/70/0b/adc81965586a08d96d7a6e2922da950bd7b969b259eb581aa1dba3ca5147/wayback-0.5.0.tar.gz", hash = "sha256:329e68fd7456b1c17649e7815c5df26456ec77883c6b577d1b2de8fbce4b93a5", size = 884667, upload-time = "2026-05-22T20:12:24.389Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/0c/3ac76773d81beb57696097eefe98d90137d263e57bb6a6406b9238b273a8/wayback-0.4.5-py3-none-any.whl", hash = "sha256:4de2a65c99045ea99255f37ef2deeca445d94c612cf6fb7e78d46c9bb6b36e55", size = 41107, upload-time = "2024-02-01T19:17:06.379Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/4e/8f11f39436879dd9e0e71d23608ae6cb12999772ae7e4f389fde46b7be8c/wayback-0.5.0-py3-none-any.whl", hash = "sha256:5d85673751a9f6f2894318a74ed9b9dfccc270b2dc1c76635bf89295fd504b7c", size = 32170, upload-time = "2026-05-22T20:12:22.655Z" },
 ]
 
 [[package]]
 name = "web-monitoring"
-version = "0.1.dev1196+gccd1a157f"
-source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#ccd1a157f96450b01e21600700711034c31edc27" }
+version = "0.1.dev1203+g320537b6a"
+source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#320537b6aa86d52951d8fb979e31d76fec843c15" }
 dependencies = [
-    { name = "aiohttp" },
     { name = "brotli" },
     { name = "charset-normalizer" },
     { name = "cloudpathlib", extra = ["s3"] },
