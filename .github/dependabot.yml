@@ -4,13 +4,19 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: 'uv'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: 'docker'
     directory: '/'
     schedule:
       interval: 'daily'
+    cooldown:
+      default-days: 1
