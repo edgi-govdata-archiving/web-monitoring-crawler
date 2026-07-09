@@ -1,0 +1,30 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":helpers:pinGitHubActionDigests",
+        ":pinDevDependencies"
+    ],
+    "packageRules": [
+        {
+            "matchManagers": ["github-actions"],
+            "minimumReleaseAge": "7 days",
+            "schedule": ["* * * * 1"] // Weekly
+        },
+        {
+            "matchCategories": ["python"],
+            "minimumReleaseAge": "7 days",
+            "schedule": ["* * 1 * *"] // Monthly
+        },
+        {
+            "description": "Use patch updates for .python-version, but keep major/minor manual (we want to sync with Browsertrix-crawler)",
+            "matchManagers": ["pyenv"],
+            "matchUpdateTypes": ["major", "minor"],
+            "enabled": false
+        },
+        {
+            "matchManagers": ["dockerfile"],
+            "minimumReleaseAge": "1 day"
+        }
+    ]
+}
