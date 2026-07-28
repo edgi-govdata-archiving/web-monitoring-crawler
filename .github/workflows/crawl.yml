@@ -202,12 +202,12 @@ jobs:
           retention-days: 7
 
       - name: Import to web-monitoring-db
-        if: ${{ success() && env.SAVE_RESULTS == 'true' }}
+        if: ${{ success() }}
         env:
           WEB_MONITORING_DB_EMAIL: '${{ secrets.WEB_MONITORING_DB_EMAIL }}'
           WEB_MONITORING_DB_PASSWORD: '${{ secrets.WEB_MONITORING_DB_PASSWORD }}'
           WEB_MONITORING_DB_S3_BUCKET: '${{ secrets.WEB_MONITORING_DB_S3_BUCKET }}'
-          DRY_RUN_OPTION: ${{ env.SAVE_RESULTS == 'false' && '--dry-run' || '' }}
+          DRY_RUN_OPTION: ${{ env.SAVE_RESULTS != 'true' && '--dry-run' || '' }}
           SENTRY_DSN: ${{ env.SAVE_RESULTS == 'true' && secrets.SENTRY_DSN }}
         run: |
           crawl_path="crawls/collections/${COLLECTION}"
