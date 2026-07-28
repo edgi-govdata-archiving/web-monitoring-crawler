@@ -108,6 +108,7 @@ def format_browsertrix(urls: Iterable[str], *, workers: int = 4, **options: Any)
         'rolloverSize': 8_000_000_000,
         # Default timeout is 90, bump it up for some sites that seem to have long CloudFront timeouts.
         'pageLoadTimeout': 120,
+        'rateLimitStatusCodes': [429],
         **options,
         'warcinfo': {
             'operator': '"Environmental Data & Governance Initiative" <contact@envirodatagov.org>',
