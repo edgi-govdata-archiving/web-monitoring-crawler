@@ -95,7 +95,11 @@ def format_browsertrix(urls: Iterable[str], *, workers: int = 4, **options: Any)
         if '#' in url:
             seeds.append({
                 'url': url,
-                'scopeType': 'page-spa',
+                # This *should* be `scopeType: page-spa`, so that we can record
+                # muliple fragment URLs of a given base, but there is a bug
+                # with it in Browsertrix v1.14.0:
+                # https://github.com/webrecorder/browsertrix-crawler/issues/1129
+                'scopeType': 'prefix',
                 'depth': 0
             })
         else:
