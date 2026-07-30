@@ -112,7 +112,23 @@ def format_browsertrix(urls: Iterable[str], *, workers: int = 4, **options: Any)
         'rolloverSize': 8_000_000_000,
         # Default timeout is 90, bump it up for some sites that seem to have long CloudFront timeouts.
         'pageLoadTimeout': 120,
+
+        # Browsertrix v1.14 introduced rate limiting/WAF detection, but it's a
+        # little over-aggressive. We're paring it back a bit here. (Arguably
+        # our needs are different than the average crawl, since we want to
+        # record affirmative evidence that something was *removed*, and the
+        # existing rules are not really geared toward that.)
+        #
+        # Only consider 429 on a pure status-code basis.
+        # We've seen other statuses in non-rate-limited scenarios.
         'rateLimitStatusCodes': [429],
+        # Specifying custom rules blows away the built-in defaults (for now?).
+        # The built-ins (as of 1.14.1) cause real false positives for us.
+        # See: https://github.com/webrecorder/browsertrix-crawler/issues/1135
+        'rateLimitOnMatch': [
+            'THIS SHOULD NOT MATCH ~ANYTHING~ AND IS HERE TO DISABLE RATE LIMIT RULES:200'
+        ],
+
         **options,
         'warcinfo': {
             'operator': '"Environmental Data & Governance Initiative" <contact@envirodatagov.org>',
