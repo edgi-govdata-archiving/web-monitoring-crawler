@@ -12,12 +12,18 @@ on:
         type: string
         required: true
 
+env:
+  # TEMPORARY: Should remove this after 2026-09-01. We are trying to get
+  # very detailed metrics for now.
+  SENTRY_TRACES_SAMPLE_RATE: '1.0'
+
 jobs:
   reimport:
     runs-on: ubuntu-latest
     env:
       TIMESTAMP: ${{ inputs.timestamp }}
       COLLECTION: 'edgi-${{ inputs.timestamp }}-${{ inputs.seed_group }}'
+      SENTRY_ENVIRONMENT: ${{ github.ref_name == 'main' && 'production' || 'test' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
