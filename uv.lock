@@ -1235,8 +1235,8 @@ wheels = [
 
 [[package]]
 name = "web-monitoring"
-version = "0.1.dev1241+g21a77325a"
-source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#21a77325af1ecdee43d49b8d82786d2f6e891591" }
+version = "0.1.dev1243+gc327da204"
+source = { git = "https://github.com/edgi-govdata-archiving/web-monitoring-processing.git?rev=main#c327da2043931fff7ff89da0a2365f073b65da9f" }
 dependencies = [
     { name = "brotli" },
     { name = "charset-normalizer" },
